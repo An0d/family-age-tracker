@@ -7,6 +7,15 @@ type Age = {
   days: number
 }
 
+function calculateAgeInWeeks(birthDate: Date, currentDate: Date): number {
+  const millisecondsPerDay = 24 * 60 * 60 * 1000
+  const daysSinceBirth = Math.floor(
+    (currentDate.getTime() - birthDate.getTime()) / millisecondsPerDay,
+  )
+
+  return Math.floor(daysSinceBirth / 7)
+}
+
 function calculateAge(birthDate: Date, currentDate: Date): Age {
   let years = currentDate.getFullYear() - birthDate.getFullYear()
   let months = currentDate.getMonth() - birthDate.getMonth()
@@ -36,12 +45,18 @@ function renderAges() {
     .map((member) => {
       const birthDate = new Date(`${member.birthDate}T00:00:00`)
       const age = calculateAge(birthDate, today)
+      const ageInWeeks = calculateAgeInWeeks(birthDate, today)
+      const dogWeeksLine =
+        member.category === 'Chien'
+          ? `<p class="age">${ageInWeeks} semaine(s)</p>`
+          : ''
 
       return `
         <li class="card">
           <h2>${member.name}</h2>
           <p class="category">${member.category}</p>
           <p class="birth-date">Né(e) le ${birthDate.toLocaleDateString('fr-FR')}</p>
+          ${dogWeeksLine}
           <p class="age">${age.years} an(s), ${age.months} mois, ${age.days} jour(s)</p>
         </li>
       `

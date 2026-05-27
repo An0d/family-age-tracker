@@ -6,18 +6,18 @@ export type FamilyMember = {
 
 export const familyMembers: FamilyMember[] = [
   {
-    name: 'Enfant 1',
+    name: 'Abel',
     category: 'Enfant',
-    birthDate: '2018-03-12',
+    birthDate: '2015-10-26',
   },
   {
-    name: 'Enfant 2',
+    name: 'Cal',
     category: 'Enfant',
-    birthDate: '2021-09-04',
+    birthDate: '2018-08-09',
   },
   {
-    name: 'Chien',
+    name: 'Maze',
     category: 'Chien',
-    birthDate: '2020-01-20',
+    birthDate: '2026-03-13',
   },
 ]
