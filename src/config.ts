@@ -1,10 +1,20 @@
 export type FamilyMember = {
   name: string
-  category: 'Enfant' | 'Chien'
+  category: 'Parent' |'Enfant' | 'Chien'
   birthDate: string
 }
 
 export const familyMembers: FamilyMember[] = [
+  {
+    name: 'Papa',
+    category: 'Parent',
+    birthDate: '1985-06-04',
+  },
+  {
+    name: 'Maman',
+    category: 'Parent',
+    birthDate: '1985-01-25',
+  },
   {
     name: 'Abel',
     category: 'Enfant',
