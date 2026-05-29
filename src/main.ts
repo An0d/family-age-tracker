@@ -1,5 +1,5 @@
 import './style.css'
-import { familyMembers } from './config'
+import { familyMembers, type FamilyMember } from './config'
 
 type Age = {
   years: number
@@ -41,24 +41,63 @@ function calculateAge(birthDate: Date, currentDate: Date): Age {
 
 function renderAges() {
   const today = new Date()
-  const listItems = familyMembers
-    .map((member) => {
-      const birthDate = new Date(`${member.birthDate}T00:00:00`)
-      const age = calculateAge(birthDate, today)
-      const ageInWeeks = calculateAgeInWeeks(birthDate, today)
-      const dogWeeksLine =
-        member.category === 'Chien'
-          ? `<p class="age">${ageInWeeks} semaine(s)</p>`
-          : ''
+  const categoryOrder: FamilyMember['category'][] = ['Adulte', 'Enfant', 'Chien']
+  const categoryLabels: Record<FamilyMember['category'], string> = {
+    Adulte: 'Adultes',
+    Enfant: 'Enfants',
+    Chien: 'Chiens',
+  }
+
+  const sections = categoryOrder
+    .map((category) => {
+      const listItems = familyMembers
+        .filter((member) => member.category === category)
+        .sort((a, b) => {
+          const deceasedOrder = Number(Boolean(a.deathDate)) - Number(Boolean(b.deathDate))
+
+          if (deceasedOrder !== 0) {
+            return deceasedOrder
+          }
+
+          return a.name.localeCompare(b.name, 'fr-FR')
+        })
+        .map((member) => {
+          const birthDate = new Date(`${member.birthDate}T00:00:00`)
+          const deathDate = member.deathDate
+            ? new Date(`${member.deathDate}T00:00:00`)
+            : null
+          const referenceDate = deathDate ?? today
+          const age = calculateAge(birthDate, referenceDate)
+          const ageInWeeks = calculateAgeInWeeks(birthDate, referenceDate)
+          const deceasedMarker = deathDate
+            ? '<span class="deceased-cross" title="Décédé" aria-label="Décédé">&dagger;</span>'
+            : ''
+          const deathDateLine = deathDate
+            ? `<p class="death-date">Décédé(e) le ${deathDate.toLocaleDateString('fr-FR')}</p>`
+            : ''
+          const dogWeeksLine =
+            member.category === 'Chien'
+              ? `<p class="age">${ageInWeeks} semaine(s)</p>`
+              : ''
+
+          return `
+            <li class="card ${deathDate ? 'is-deceased' : ''}">
+              <h2>${member.name} ${deceasedMarker}</h2>
+              <p class="category">${member.category}</p>
+              <p class="birth-date">Né(e) le ${birthDate.toLocaleDateString('fr-FR')}</p>
+              ${deathDateLine}
+              ${dogWeeksLine}
+              <p class="age">${age.years} an(s), ${age.months} mois, ${age.days} jour(s)</p>
+            </li>
+          `
+        })
+        .join('')
 
       return `
-        <li class="card">
-          <h2>${member.name}</h2>
-          <p class="category">${member.category}</p>
-          <p class="birth-date">Né(e) le ${birthDate.toLocaleDateString('fr-FR')}</p>
-          ${dogWeeksLine}
-          <p class="age">${age.years} an(s), ${age.months} mois, ${age.days} jour(s)</p>
-        </li>
+        <section class="category-section">
+          <h2 class="section-title">${categoryLabels[category]}</h2>
+          <ul class="cards">${listItems}</ul>
+        </section>
       `
     })
     .join('')
@@ -67,7 +106,7 @@ function renderAges() {
     <main class="container">
       <h1>Âge de la famille</h1>
       <p class="subtitle">Mise à jour en direct</p>
-      <ul class="cards">${listItems}</ul>
+      <div class="category-groups">${sections}</div>
     </main>
   `
 }
